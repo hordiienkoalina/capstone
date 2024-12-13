@@ -3,6 +3,10 @@ library(Synth)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(SCtools)
+library(ggplot2)
+
+### MODEL ###
 
 # Set the file paths for the data
 fertility_rate_file <- "data/Fertility rate, total (births per woman).csv"
@@ -131,7 +135,7 @@ dataprep.out <- dataprep(
   unit.variable = "Country_Code",
   time.variable = "Year",
   treatment.identifier = 1,  # Georgia
-  controls.identifier = 2:(length(donor_countries) + 1),  # Donor Pool Countries
+  controls.identifier = 2:(length(donor_countries) + 1),
   time.predictors.prior = c(1960:2007),
   time.optimize.ssr = c(1960:2007),
   unit.names.variable = "Country Name",
@@ -141,8 +145,166 @@ dataprep.out <- dataprep(
 # Run the synthetic control analysis
 synth.out <- synth(dataprep.out)
 
-# Plot Real vs Synthetic Georgia
+# Plot Treated vs Synthetic Georgia
 path.plot(dataprep.res = dataprep.out, synth.res = synth.out, Ylab = "Fertility rate, total (births per woman)")
 
 # Add a vertical line at 2007
 abline(v = 2007, col = "black", lty = 2, lwd = 2)
+
+### PLACEBO STUDIES ###
+
+# PLACEBO IN-SPACE
+dependent_var <- "Fertility_Rate"
+predictors <- c("GDP_Per_Capita_Growth", 
+                "Urban_Population_Growth",
+                "Unemployment_Rate",
+                "Female_Labor_Force",
+                "Age_Dependency_Ratio",
+                "Net_Migration")
+
+treatment_unit <- 1 # Georgia
+control_units <- 2:(length(donor_countries) + 1)
+treatment_time <- 2007
+pre_treatment_period <- 1960:2007
+post_treatment_period <- 2008:2022
+plot_period <- 1960:2022
+
+# Run multiple.synth
+res <- multiple.synth(
+  foo = merged_data,
+  predictors = predictors,
+  predictors.op = "mean",
+  dependent = dependent_var,
+  unit.variable = "Country_Code",
+  time.variable = "Year",
+  special.predictors = NULL,
+  treated.units = treatment_unit,
+  control.units = control_units,
+  time.predictors.prior = pre_treatment_period,
+  time.optimize.ssr = pre_treatment_period,
+  unit.names.variable = "Country Name",
+  time.plot = plot_period,
+  treatment.time = treatment_time,
+  gen.placebos = FALSE,
+  strategy = "sequential",
+  Sigf.ipop = 5
+)
+
+placebo <- generate.placebos(dataprep.out, synth.out, Sigf.ipop = 2, strategy='multicore')
+p <- plot_placebos(placebo, discard.extreme=FALSE, xlab='Year')
+
+# Fixing the label color scale
+p + scale_color_manual(
+  name = "", 
+  values = c("black", "grey"), 
+  labels = c("Georgia", "Control units")
+)
+
+mspe_plot(placebo)
+ratio <- mspe.test(placebo)
+print(ratio$p.val)
+print(ratio$test)
+
+# PLACEBO IN TIME
+
+# Define placebo treatment years
+placebo_years <- c(2000, 2001, 2002, 2003, 2004, 2005, 2006)
+actual_treatment_year <- 2007
+
+# Store results for comparison
+placebo_results <- list()
+
+for (placebo_year in placebo_years) {
+  # Update dataprep for placebo year
+  dataprep.placebo <- dataprep(
+    foo = merged_data,
+    predictors = c("GDP_Per_Capita_Growth", 
+                   "Urban_Population_Growth", 
+                   "Unemployment_Rate", 
+                   "Female_Labor_Force", 
+                   "Age_Dependency_Ratio", 
+                   "Net_Migration"),
+    predictors.op = "mean",
+    dependent = "Fertility_Rate",
+    unit.variable = "Country_Code",
+    time.variable = "Year",
+    treatment.identifier = 1,
+    controls.identifier = 2:(length(donor_countries) + 1),
+    time.predictors.prior = 1960:(placebo_year - 1),
+    time.optimize.ssr = 1960:(placebo_year - 1),
+    unit.names.variable = "Country Name",
+    time.plot = c(1960:2022)
+  )
+  
+  # Run the synthetic control analysis for the placebo
+  synth.placebo <- synth(dataprep.placebo)
+  
+  placebo_results[[as.character(placebo_year)]] <- list(
+    dataprep = dataprep.placebo,
+    synth = synth.placebo
+  )
+  
+  # Plot the results
+  path.plot(dataprep.res = dataprep.placebo, synth.res = synth.placebo,
+            Ylab = "Fertility Rate (Placebo)", Xlab = "Year",
+            Legend = c("Treated", "Synthetic"))
+  
+  years <- seq(1960, 2022, by = 1)
+  axis(1, at = years, labels = years, las = 2)
+  abline(v = placebo_year, col = "blue", lty = 2, lwd = 2)
+}
+
+### LOOCV ###
+
+# Initialize an empty list to store results
+loocv_results <- list()
+
+# Loop over each donor country to exclude it from the donor pool
+for (country_code in control_units) {
+  # Define the donor pool excluding the current country
+  loocv_controls <- setdiff(control_units, country_code)
+  
+  # Prepare the data excluding the current country
+  loocv_dataprep <- dataprep(
+    foo = merged_data,
+    predictors = c("GDP_Per_Capita_Growth", 
+                   "Urban_Population_Growth", 
+                   "Unemployment_Rate", 
+                   "Female_Labor_Force", 
+                   "Age_Dependency_Ratio", 
+                   "Net_Migration"),
+    predictors.op = "mean",
+    dependent = "Fertility_Rate",
+    unit.variable = "Country_Code",
+    time.variable = "Year",
+    treatment.identifier = 1,
+    controls.identifier = loocv_controls,
+    time.predictors.prior = c(1960:2007),
+    time.optimize.ssr = c(1960:2007),
+    unit.names.variable = "Country Name",
+    time.plot = c(1960:2022)
+  )
+  
+  # Run the synthetic control analysis
+  loocv_synth <- synth(loocv_dataprep)
+  
+  # Extract the country name for the title
+  excluded_country_name <- merged_data$`Country Name`[merged_data$Country_Code == country_code][1]
+  
+  # Store the results
+  loocv_results[[excluded_country_name]] <- list(
+    dataprep = loocv_dataprep,
+    synth = loocv_synth
+  )
+  
+  # Plot the results
+  path.plot(
+    dataprep.res = loocv_results[[excluded_country_name]]$dataprep,
+    synth.res = loocv_results[[excluded_country_name]]$synth,
+    Ylab = "Fertility Rate",
+    Xlab = "Year",
+    Legend = c("Treated", "Synthetic"),
+    Main = paste("LOOCV: Excluding", excluded_country_name)
+  )
+  abline(v = 2007, col = "red", lty = 2, lwd = 2)
+}
