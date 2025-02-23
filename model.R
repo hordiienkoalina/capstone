@@ -129,7 +129,7 @@ control_ids  <- 2:(length(donor_countries) + 1)
 pre_period   <- 1960:2007
 full_period  <- 1960:2022
 
-# Run dataprep to create the data structure for synth()
+# Run dataprep and synth functions that trigger warnings
 dataprep.out <- dataprep(
   foo = merged_data,
   predictors         = c("GDP_Per_Capita_Growth", 
@@ -150,7 +150,6 @@ dataprep.out <- dataprep(
   time.plot            = full_period
 )
 
-# Run the synthetic control analysis
 synth.out <- synth(dataprep.out)
 
 ###############################
@@ -216,7 +215,49 @@ print(paste("Placebo in-space p-value:", p_value))
 print(ratio$test)
 
 ###############################
-# 9. MSPE RATIOS (SCATTER PLOT + HISTOGRAM)
+# 9. PRE-TREATMENT MSPE COMPARISON
+###############################
+# Extract Georgia's observed and synthetic values for the pre-treatment period
+observed_georgia <- dataprep.out$Y1plot[which(dataprep.out$tag$time.plot %in% pre_period)]
+synthetic_georgia <- (dataprep.out$Y0plot %*% synth.out$solution.w)[which(dataprep.out$tag$time.plot %in% pre_period)]
+
+# Compute pre-treatment MSPE for Georgia
+mspe_georgia <- mean((observed_georgia - synthetic_georgia)^2, na.rm = TRUE)
+
+# Extract donor MSPEs
+donor_mspe <- unlist(placebo$mspe.placs)
+
+# Extract donor country names correctly
+donor_units <- dataprep.out$tag$controls.identifier  # Unit numbers of donor countries
+donor_country_names <- dataprep.out$names.and.numbers$unit.names[
+  match(donor_units, dataprep.out$names.and.numbers$unit.numbers)
+]
+
+# Compute how much larger each donor unit's MSPE is relative to Georgia's
+mspe_comparison <- data.frame(
+  Country = donor_country_names,
+  Pre_Treatment_MSPE = donor_mspe,
+  Relative_to_Georgia = donor_mspe / mspe_georgia  # Compute ratio
+)
+
+# Print results
+cat("Pre-Treatment MSPE for Georgia:", mspe_georgia, "\n\n")
+cat("Comparison of donor MSPEs relative to Georgia:\n")
+print(mspe_comparison)
+
+# Plot the comparison
+ggplot(mspe_comparison, aes(x = reorder(Country, Relative_to_Georgia), y = Relative_to_Georgia)) +
+  geom_bar(stat = "identity", fill = "grey50") +
+  coord_flip() +
+  labs(title = "Pre-Treatment MSPE Comparison: Donor Units vs. Georgia",
+       x = "Country",
+       y = "MSPE Ratio (Donor / Georgia)") +
+  scale_y_continuous(breaks = seq(0, max(mspe_comparison$Relative_to_Georgia), by = 25)) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+###############################
+# 10. MSPE RATIOS (SCATTER PLOT + HISTOGRAM)
 ###############################
 # Scatter Plot
 mspe_plot(placebo)
@@ -239,7 +280,7 @@ ggplot(mspe_data, aes(x = MSPE_Ratio)) +
   theme_minimal()
 
 ###############################
-# 10. PLACEBO STUDIES: IN-TIME
+# 11. PLACEBO STUDIES: IN-TIME
 ###############################
 # Define placebo treatment years (pre-treatment years)
 placebo_years        <- 2000:2006
@@ -279,7 +320,7 @@ for (py in placebo_years) {
 }
 
 ###############################
-# 11. LEAVE-ONE-OUT CROSS VALIDATION (LOOCV)
+# 12. LEAVE-ONE-OUT CROSS VALIDATION (LOOCV)
 ###############################
 loocv_results <- list()
 
@@ -319,7 +360,7 @@ for (country_code in control_ids) {
 }
 
 ###############################
-# 12. NA VALUES ANALYSIS
+# 13. NA VALUES ANALYSIS
 ###############################
 # Reshape data for NA count per country and variable
 na_by_country_variable <- merged_data %>%
