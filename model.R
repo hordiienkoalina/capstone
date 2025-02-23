@@ -256,6 +256,25 @@ ggplot(mspe_comparison, aes(x = reorder(Country, Relative_to_Georgia), y = Relat
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
+# Print countries and count of countries above and below an MSPE limit
+# Define threshold value
+mspe_limit <- 100
+
+# Filter countries based on the threshold
+above_limit <- mspe_comparison %>% filter(Relative_to_Georgia > mspe_limit)
+below_limit <- mspe_comparison %>% filter(Relative_to_Georgia <= mspe_limit)
+
+# Count the number of countries in each category
+count_above <- nrow(above_limit)
+count_below <- nrow(below_limit)
+
+# Print results
+cat("\nCountries with Relative_to_Georgia ABOVE", mspe_limit, "(", count_above, "countries ):\n")
+print(above_limit)
+
+cat("\nCountries with Relative_to_Georgia BELOW or EQUAL to", mspe_limit, "(", count_below, "countries ):\n")
+print(below_limit)
+
 ###############################
 # 10. MSPE RATIOS (SCATTER PLOT + HISTOGRAM)
 ###############################
