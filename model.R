@@ -7,6 +7,7 @@ library(dplyr)
 library(tidyr)
 library(SCtools)
 library(ggplot2)
+library(tidyverse)
 
 # Define file paths for each dataset
 file_paths <- list(
@@ -33,24 +34,127 @@ age_dependency   <- read_csv(file_paths$age_dependency)
 female_male_ratio<- read_csv(file_paths$female_male_ratio)
 net_migration    <- read_csv(file_paths$net_migration)
 
+# DATA PREP FOR PAPER
+fertility_long <- fertility_rate %>%
+  pivot_longer(
+    cols = -c(`Country Name`, `Country Code`, `Indicator Name`, `Indicator Code`),
+    names_to = "Year",
+    values_to = "TFR"
+  ) %>%
+  mutate(Year = as.numeric(Year))
+
+# Potential Donor Pool Countries
+countries <- c("Poland", "Armenia", "Austria", "Azerbaijan", "Belarus", "Bulgaria",
+               "Czechia", "Estonia", "France", "Germany", "Georgia", "Greece",
+               "Ireland", "Iceland", "Italy", "Kazakhstan", "Latvia",
+               "Lithuania", "Moldova", "Romania", "Russian Federation", "Spain",
+               "Sweden", "Turkiye", "Ukraine", "Uzbekistan", "Hungary",
+               "Slovakia", "Albania", "Slovenia", "Bosnia and Herzegovina",
+               "Croatia", "North Macedonia", "Montenegro", "Serbia", "Slovak Republic",
+               "United Kingdom", "Netherlands", "Belgium", "Portugal", "Switzerland", 
+               "Denmark", "Finland", "Norway", "Cyprus", "Malta", "Luxembourg", "Kosovo",
+               "Kyrgyz Republic", "Tajikistan", "Turkmenistan"
+              )
+
+# Filter the dataset for the post-intervention period
+fertility_filtered <- fertility_long %>%
+  filter(`Country Name` %in% countries, Year >= 2007, Year <= 2022)
+
+# Summarize to compute the lowest and highest TFR for each country and add row numbers
+fertility_summary <- fertility_filtered %>%
+  group_by(`Country Name`) %>%
+  summarize(
+    min_TFR = min(TFR, na.rm = TRUE),
+    max_TFR = max(TFR, na.rm = TRUE)
+  ) %>%
+  mutate(TFR_range = paste0("TFR ~", round(min_TFR, 2), " - ", round(max_TFR, 2))) %>%
+  ungroup() %>%
+  mutate(Row = row_number()) %>%                # Add row numbers here
+  select(Row, `Country Name`, TFR_range)         # Reorder to have row numbers as the leftmost column
+
+# Print the results
+print(fertility_summary)
+
+# Save the summarized results to a CSV file
+write_csv(fertility_summary, "outputs/fertility_summary.csv")
+
+
+# RELIGION
+
+# Define the file path for the religion breakdown CSV file
+religion_file <- "data/religous-composition.csv"
+
+# Read the CSV file
+religion_data <- read_csv(religion_file)
+
+# Define the list of countries to include
+countries <- c("Georgia", "Poland", "Albania", "Armenia", "Austria", "Azerbaijan",
+               "Belarus", "Bosnia-Herzegovina", "Bulgaria", "Croatia", "Czech Republic",
+               "Estonia", "France", "Germany", "Greece", "Hungary", "Iceland",
+               "Ireland", "Italy", "Kazakhstan", "Latvia", "Lithuania", "Moldova",
+               "Montenegro", "Republic of Macedonia", "Romania", "Russia", "Serbia",
+               "Slovakia", "Slovenia", "Spain", "Sweden", "Turkey", "Ukraine",
+               "Uzbekistan", "United Kingdom", "Netherlands", "Belgium", "Portugal", "Switzerland", 
+               "Denmark", "Finland", "Norway", "Cyprus", "Malta", "Luxembourg", "Kosovo",
+               "Kyrgyzstan", "Tajikistan", "Turkmenistan"
+               )
+
+# Filter the data for the year 2010 and the specified countries
+religion_filtered <- religion_data %>%
+  filter(Year == 2010, Country %in% countries)
+
+# Create a formatted breakdown string for each country.
+religion_formatted <- religion_filtered %>%
+  mutate(
+    Breakdown = paste0(
+      Christians, "% Christians", "\n",
+      Muslims, "% Muslims", "\n",
+      Unaffiliated, "% Unaffiliated", "\n",
+      Hindus, "% Hindus", "\n",
+      Buddhists, "% Buddhists", "\n",
+      `Folk Religions`, "% Folk Religions", "\n",
+      `Other Religions`, "% Other Religions", "\n",
+      Jews, "% Jews"
+    )
+  )
+
+religion_final <- religion_formatted %>%
+  mutate(Row = row_number()) %>%
+  select(Row, Country, Breakdown)
+
+# View the output in the console
+print(religion_final)
+
+# Save as CSV
+write_csv(religion_final, "outputs/religious_composition_2010.csv")
+
 ###############################
 # 3. DEFINE DONOR POOL & HELPER FUNCTIONS
 ###############################
-# Define donor countries
-donor_countries <- c("Ireland", 
-                     "Iceland", 
-                     "France", 
-                     "Sweden", 
-                     "Armenia", 
-                     "Azerbaijan", 
-                     "Ukraine", 
-                     "Russian Federation", 
-                     "Moldova", 
-                     "Estonia", 
-                     "Latvia", 
-                     "Lithuania", 
-                     "Kazakhstan", 
-                     "Uzbekistan")
+donor_countries <- c(
+                    "Albania",
+                    "Croatia",
+                    "Cyprus",
+                    # "Kosovo", Not enough data
+                    "Malta",
+                    "Moldova",
+                    "North Macedonia",
+                    "Slovak Republic",
+                    "Slovenia",
+                    "Turkiye",
+                    "Azerbaijan",
+                    "Belgium",
+                    "Bulgaria",
+                    "Denmark",
+                    "France",
+                    "Italy",
+                    "Latvia",
+                    "Netherlands",
+                    "Portugal",
+                    "Serbia",
+                    "Switzerland",
+                    "Ukraine"
+                    )
 
 # Function: Filter & clean each dataset for countries of interest
 clean_and_filter_data <- function(data, countries) {
@@ -133,11 +237,12 @@ full_period  <- 1960:2022
 dataprep.out <- dataprep(
   foo = merged_data,
   predictors         = c("GDP_Per_Capita_Growth", 
-                         "Urban_Population_Growth",
+                         #"Urban_Population_Growth",
                          "Unemployment_Rate", 
                          "Female_Labor_Force",
-                         "Age_Dependency_Ratio", 
-                         "Net_Migration"),
+                         "Age_Dependency_Ratio"
+                         #"Net_Migration"
+                         ),
   predictors.op      = "mean",
   dependent          = "Fertility_Rate",
   unit.variable      = "Country_Code",
@@ -150,7 +255,7 @@ dataprep.out <- dataprep(
   time.plot            = full_period
 )
 
-synth.out <- synth(dataprep.out)
+synth.out <- synth(dataprep.out, optimxmethod = "All", quadopt="ipop")
 
 ###############################
 # 7. PLOT TREATED VS. SYNTHETIC GEORGIA
@@ -194,18 +299,14 @@ res <- multiple.synth(
 # Generate and plot placebos using the multicore strategy
 placebo <- generate.placebos(dataprep.out, synth.out, Sigf.ipop = 2, strategy = 'multicore')
 
-p  <- plot_placebos(placebo, discard.extreme = FALSE, xlab = 'Year') +
+p0  <- plot_placebos(placebo, discard.extreme = FALSE, xlab = 'Year') +
   ggtitle("Placebo Results (No Limit)")
-p1 <- plot_placebos(placebo, discard.extreme = TRUE, mspe.limit = 100, xlab = 'Year') +
-  ggtitle("Placebo Results (MSPE Limit = 100x)")
-p2 <- plot_placebos(placebo, discard.extreme = TRUE, mspe.limit = 10, xlab = 'Year') +
-  ggtitle("Placebo Results (MSPE Limit = 10x)")
+p1 <- plot_placebos(placebo, discard.extreme = TRUE, mspe.limit = 30, xlab = 'Year') +
+  ggtitle("Placebo Results (MSPE Limit = 30x)")
 
-p  + scale_color_manual(name = "", values = c("black", "grey"),
+p0  + scale_color_manual(name = "", values = c("black", "grey"),
                               labels = c("Georgia", "Control units"))
 p1 + scale_color_manual(name = "", values = c("black", "grey"),
-                              labels = c("Georgia", "Control units"))
-p2 + scale_color_manual(name = "", values = c("black", "grey"),
                               labels = c("Georgia", "Control units"))
 
 # Compute and print MSPE ratio and p-value
@@ -258,7 +359,7 @@ ggplot(mspe_comparison, aes(x = reorder(Country, Relative_to_Georgia), y = Relat
 
 # Print countries and count of countries above and below an MSPE limit
 # Define threshold value
-mspe_limit <- 100
+mspe_limit <- 30
 
 # Filter countries based on the threshold
 above_limit <- mspe_comparison %>% filter(Relative_to_Georgia > mspe_limit)
@@ -285,15 +386,14 @@ mspe_plot(placebo)
 mspe_values <- as.numeric(as.character(unlist(ratio$test)))
 mspe_data   <- data.frame(MSPE_Ratio = mspe_values)
 
-# Assume Georgia's MSPE is at index 15 (adjust index if needed)
-georgia_mspe <- mspe_values[15]
+# Store Georgia's MSPE ratio
+georgia_mspe <- ratio$test$MSPE.ratios[22]
 
-# Plot histogram with Georgia's MSPE highlighted
+# Create the histogram and conditionally fill the bin that contains georgia_mspe in red
 ggplot(mspe_data, aes(x = MSPE_Ratio)) +
-  geom_histogram(bins = 30, fill = "white", color = "black", alpha = 0.7) +
-  geom_vline(xintercept = georgia_mspe, color = "red", linetype = "dashed", size = 1) +
-  annotate("text", x = georgia_mspe, y = Inf, label = "Georgia",
-           vjust = -0.5, color = "red") +
+  geom_histogram(aes(fill = ifelse(..xmin.. <= georgia_mspe & ..xmax.. > georgia_mspe, "red", "white")),
+                 bins = 30, color = "black", alpha = 0.7) +
+  scale_fill_identity() +
   labs(title = "Histogram of MSPE Ratios",
        x = "MSPE Ratio", y = "Frequency") +
   theme_minimal()
@@ -396,4 +496,13 @@ na_by_country_variable <- merged_data %>%
 # Display and save the NA breakdown
 print("Missing Values Breakdown by Country and Variable:")
 print(na_by_country_variable)
-write.csv(na_by_country_variable, "na_by_country_variable.csv", row.names = FALSE)
+write.csv(na_by_country_variable, "outputs/na_by_country_variable.csv", row.names = FALSE)
+
+###############################
+# 14. WEIGHTS & BALANCE
+###############################
+
+synth.tables <- synth.tab(
+  dataprep.res = dataprep.out,
+  synth.res = synth.out)
+print(synth.tables)
