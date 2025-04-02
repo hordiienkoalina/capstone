@@ -1,6 +1,6 @@
-###############################
+################################
 # 1. LOAD LIBRARIES & FILE PATHS
-###############################
+################################
 library(Synth)
 library(readr)
 library(dplyr)
@@ -8,6 +8,7 @@ library(tidyr)
 library(SCtools)
 library(ggplot2)
 library(tidyverse)
+library(reshape2)
 
 # Define file paths for each dataset
 file_paths <- list(
@@ -21,9 +22,9 @@ file_paths <- list(
   net_migration    = "data/Net migration.csv"
 )
 
-###############################
+##################
 # 2. LOAD DATASETS
-###############################
+##################
 # Read each CSV file
 fertility_rate   <- read_csv(file_paths$fertility_rate)
 gdp_growth       <- read_csv(file_paths$gdp_growth)
@@ -128,9 +129,9 @@ print(religion_final)
 # Save as CSV
 write_csv(religion_final, "outputs/religious_composition_2010.csv")
 
-###############################
+#########################################
 # 3. DEFINE DONOR POOL & HELPER FUNCTIONS
-###############################
+#########################################
 donor_countries <- c(
                     "Albania",
                     "Croatia",
@@ -195,9 +196,9 @@ age_dependency_long    <- prepare_scm_data(age_dependency_filtered, "Age_Depende
 female_male_ratio_long <- prepare_scm_data(female_male_ratio_filtered, "Female_Male_Labor_Ratio")
 net_migration_long     <- prepare_scm_data(net_migration_filtered, "Net_Migration")
 
-###############################
+########################################
 # 5. MERGE DATASETS & ADD COUNTRY CODES
-###############################
+########################################
 # Merge all covariates by Country Name and Year
 merged_data <- fertility_rate_long %>%
   left_join(gdp_growth_long,       by = c("Country Name", "Year")) %>%
@@ -257,12 +258,12 @@ dataprep.out <- dataprep(
 
 synth.out <- synth(dataprep.out, optimxmethod = "All", quadopt="ipop")
 
-###############################
+########################################
 # 7. PLOT TREATED VS. SYNTHETIC GEORGIA
-###############################
+########################################
 path.plot(dataprep.res = dataprep.out, synth.res = synth.out,
           Ylab = "Fertility Rate (Births per Woman)",
-          Ylim = c(1, 3.5))
+          Ylim = c(0, 5))
 abline(v = 2007, col = "black", lty = 2, lwd = 2)
 
 ###############################
@@ -315,9 +316,10 @@ p_value <- ratio$p.val
 print(paste("Placebo in-space p-value:", p_value))
 print(ratio$test)
 
-###############################
+##################################
 # 9. PRE-TREATMENT MSPE COMPARISON
-###############################
+##################################
+
 # Extract Georgia's observed and synthetic values for the pre-treatment period
 observed_georgia <- dataprep.out$Y1plot[which(dataprep.out$tag$time.plot %in% pre_period)]
 synthetic_georgia <- (dataprep.out$Y0plot %*% synth.out$solution.w)[which(dataprep.out$tag$time.plot %in% pre_period)]
@@ -376,9 +378,9 @@ print(above_limit)
 cat("\nCountries with Relative_to_Georgia BELOW or EQUAL to", mspe_limit, "(", count_below, "countries ):\n")
 print(below_limit)
 
-###############################
+############################################
 # 10. MSPE RATIOS (SCATTER PLOT + HISTOGRAM)
-###############################
+############################################
 # Scatter Plot
 mspe_plot(placebo)
 
@@ -434,13 +436,13 @@ for (py in placebo_years) {
   # Plot the placebo results
   path.plot(dataprep.res = dp_placebo, synth.res = synth_placebo,
             Ylab = "Fertility Rate (Placebo)", Xlab = "Year",
-            Legend = c("Treated", "Synthetic"), Ylim = c(1, 3.5))
+            Legend = c("Treated", "Synthetic"), Ylim = c(0, 5))
   abline(v = py, col = "blue", lty = 2, lwd = 2)
 }
 
-###############################
+#############################################
 # 12. LEAVE-ONE-OUT CROSS VALIDATION (LOOCV)
-###############################
+#############################################
 loocv_results <- list()
 
 for (country_code in control_ids) {
@@ -469,18 +471,18 @@ for (country_code in control_ids) {
   excluded_name <- merged_data$`Country Name`[merged_data$Country_Code == country_code][1]
   loocv_results[[excluded_name]] <- list(dataprep = dp_loocv, synth = synth_loocv)
   
-  # Plot LOOCV result
-  path.plot(dataprep.res = dp_loocv, synth.res = synth_loocv,
-            Ylab = "Fertility Rate", Xlab = "Year",
-            Legend = c("Treated", "Synthetic"),
-            Main = paste("LOOCV: Excluding", excluded_name),
-            Ylim = c(1, 3.5))
-  abline(v = 2007, col = "red", lty = 2, lwd = 2)
-}
+#   # Plot LOOCV result
+#   path.plot(dataprep.res = dp_loocv, synth.res = synth_loocv,
+#             Ylab = "Fertility Rate", Xlab = "Year",
+#             Legend = c("Treated", "Synthetic"),
+#             Main = paste("LOOCV: Excluding", excluded_name),
+#             Ylim = c(0, 5))
+#   abline(v = 2007, col = "red", lty = 2, lwd = 2)
+  }
 
-###############################
+########################
 # 13. NA VALUES ANALYSIS
-###############################
+########################
 # Reshape data for NA count per country and variable
 na_by_country_variable <- merged_data %>%
   pivot_longer(cols = -`Country Name`, names_to = "Variable", values_to = "Value") %>%
@@ -498,11 +500,215 @@ print("Missing Values Breakdown by Country and Variable:")
 print(na_by_country_variable)
 write.csv(na_by_country_variable, "outputs/na_by_country_variable.csv", row.names = FALSE)
 
-###############################
+#######################
 # 14. WEIGHTS & BALANCE
-###############################
+#######################
 
 synth.tables <- synth.tab(
   dataprep.res = dataprep.out,
   synth.res = synth.out)
 print(synth.tables)
+
+###################################
+# 15. TABLE OF POST-TREATMENT GAPS
+##################################
+
+# Define the treatment year
+treatment_year <- 2007
+
+# Extract the full time series of years from dataprep
+all_years <- dataprep.out$tag$time.plot
+
+# Identify indices for post-treatment years (i.e., years > treatment_year)
+post_treatment_indices <- which(all_years > treatment_year)
+
+# Extract observed TFR values for post-treatment period
+observed_post <- dataprep.out$Y1plot[post_treatment_indices]
+
+# Calculate synthetic TFR values for post-treatment period
+synthetic_post <- as.numeric(dataprep.out$Y0plot %*% synth.out$solution.w)[post_treatment_indices]
+
+# Compute the vertical gap between the observed and synthetic series for each year
+gap <- observed_post - synthetic_post
+
+# Create a data frame with Year, Observed, Synthetic, and Gap values
+post_treatment_gap_table <- data.frame(
+  Year = all_years[post_treatment_indices],
+  Observed_Fertility = observed_post,
+  Synthetic_Fertility = synthetic_post,
+  Gap = gap
+)
+
+# Display the table in the console
+print(post_treatment_gap_table)
+
+# Save the table as a CSV file for further review
+write.csv(post_treatment_gap_table, "outputs/post_treatment_gap_table.csv", row.names = FALSE)
+
+#################################
+# 16. ESTIMATE EXTRA PEOPLE ALIVE
+#################################
+
+# Load & reshape total population data (ages 15-64)
+pop15_64 <- read_csv("data/Population ages 15-64, total.csv")
+
+pop15_64_long <- pop15_64 %>%
+  select(`Country Name`, starts_with("196"), starts_with("197"), starts_with("198"),
+         starts_with("199"), starts_with("200"), starts_with("201"), starts_with("202")) %>%
+  pivot_longer(
+    cols = -`Country Name`,
+    names_to = "Year",
+    values_to = "Population"
+  ) %>%
+  mutate(Year = as.numeric(Year))
+
+# Filter for Georgia and the post-treatment period (2008-2022)
+pop_georgia <- pop15_64_long %>%
+  filter(`Country Name` == "Georgia", Year >= 2008, Year <= 2022)
+
+# Load & reshape female percentage data
+female_pct <- read_csv("data/Population, female (% of total population).csv")
+
+female_pct_long <- female_pct %>%
+  select(`Country Name`, starts_with("196"), starts_with("197"), starts_with("198"),
+         starts_with("199"), starts_with("200"), starts_with("201"), starts_with("202")) %>%
+  pivot_longer(
+    cols = -`Country Name`,
+    names_to = "Year",
+    values_to = "Female_Pct"
+  ) %>%
+  mutate(Year = as.numeric(Year))
+
+# Filter for Georgia and the post-treatment period (2008-2022)
+female_pct_georgia <- female_pct_long %>%
+  filter(`Country Name` == "Georgia", Year >= 2008, Year <= 2022)
+
+# Merge to compute estimated female population in Georgia
+# Here we first compute the total female population from the available data,
+# then estimate the number in the reproductive age range.
+pop_female <- pop_georgia %>%
+  left_join(female_pct_georgia, by = c("Country Name", "Year")) %>%
+  mutate(Female_Population = Population * (Female_Pct / 100),
+         # Assume about 65% of women aged 15-64 are in the 15-49 age range
+         Repro_Female_Pop = Female_Population * 0.65)
+
+# Estimate extra births using the TFR gap
+#
+# Since TFR represents births per woman over her entire reproductive lifespan,
+# we convert the gap to an annual extra birth rate by dividing by an assumed
+# reproductive span (e.g., 30 years).
+repro_years <- 30  # average reproductive period in years
+
+extra_births <- post_treatment_gap_table %>%
+  filter(Year >= 2008, Year <= 2022) %>%
+  left_join(pop_female %>% select(Year, Repro_Female_Pop), by = "Year") %>%
+  mutate(Extra_Births = (Gap / repro_years) * Repro_Female_Pop)
+
+#  Print the results
+print("Extra births (extra people alive) by year:")
+print(extra_births %>% select(Year, Extra_Births))
+
+total_extra_births <- sum(extra_births$Extra_Births, na.rm = TRUE)
+print(paste("Total extra births (extra people alive) from 2008 to 2022:", total_extra_births))
+
+# Represent total extra births as a percentage of the cumulative reproductive-age female population
+
+# Compute the total reproductive-age female population over the post-treatment period
+total_repro_female_pop <- sum(pop_female$Repro_Female_Pop, na.rm = TRUE)
+
+# Compute the percentage: (total extra births / total cumulative reproductive population) * 100
+percentage_extra_births <- (total_extra_births / total_repro_female_pop) * 100
+
+# Annual average comparison
+avg_repro_female_pop <- mean(pop_female$Repro_Female_Pop, na.rm = TRUE)
+annual_percentage_extra_births <- (extra_births$Extra_Births / avg_repro_female_pop) * 100
+
+print(paste("Total extra births as percentage of cumulative reproductive-age female population (2008-2022):", 
+            round(percentage_extra_births, 2), "%"))
+
+print("Extra births (as percentage of average reproductive-age female population) by year:")
+print(data.frame(Year = extra_births$Year, 
+                 Percentage = round(annual_percentage_extra_births, 2)))
+
+#####################################################
+# 17. CALCULATE COHEN'S D FOR POST-TREATMENT TFR GAP
+#####################################################
+
+# Extract the full time series of years from dataprep
+years <- dataprep.out$tag$time.plot
+
+# Define the treatment year (2007) and identify post-treatment years (2008-2022)
+treatment_year <- 2007
+post_treatment_indices <- which(years > treatment_year)
+
+# Extract observed and synthetic TFR values for the post-treatment period
+observed_post <- dataprep.out$Y1plot[post_treatment_indices]
+synthetic_post <- as.numeric(dataprep.out$Y0plot %*% synth.out$solution.w)[post_treatment_indices]
+
+# Calculate the gap (difference between observed and synthetic TFR)
+tfr_gap <- observed_post - synthetic_post
+
+# Compute Cohen's d for the paired differences:
+# Cohen's d = (mean difference) / (standard deviation of differences)
+mean_gap <- mean(tfr_gap, na.rm = TRUE)
+sd_gap   <- sd(tfr_gap, na.rm = TRUE)
+cohens_d <- mean_gap / sd_gap
+
+print(mean_gap)
+print(sd_gap)
+
+# Print the result
+print(paste("Cohen's d for post-treatment TFR gap:", round(cohens_d, 3)))
+
+##########################
+# 18. PLOT LOOCV ESTIMATES
+##########################
+
+# Extract the common time vector and the treated (observed) outcome.
+years <- dataprep.out$tag$time.plot
+observed <- dataprep.out$Y1plot
+
+# Compute the baseline synthetic control trajectory.
+synthetic_baseline <- as.numeric(dataprep.out$Y0plot %*% synth.out$solution.w)
+
+# Create a data frame to store leave‐one‐out synthetic control trajectories.
+# Each element in loocv_results contains its own dataprep and synth objects.
+loo_df <- data.frame(Year = years)
+
+for (name in names(loocv_results)) {
+  dp_loocv <- loocv_results[[name]]$dataprep
+  synth_loocv <- loocv_results[[name]]$synth
+  # Calculate the synthetic trajectory for the leave-one-out iteration:
+  loo_trajectory <- as.numeric(dp_loocv$Y0plot %*% synth_loocv$solution.w)
+  loo_df[[name]] <- loo_trajectory
+}
+
+# Melt the leave-one-out data frame to long format for plotting.
+loo_long <- melt(loo_df, id.vars = "Year", variable.name = "LOO", value.name = "Synthetic")
+
+# Create a data frame for the treated and baseline synthetic control trajectories.
+df_baseline <- data.frame(
+  Year = years,
+  Observed = observed,
+  Synthetic = synthetic_baseline
+)
+
+p <- ggplot() +
+  # Plot treated (observed) outcomes as a solid black line.
+  geom_line(data = df_baseline, aes(x = Year, y = X1),
+            color = "black", size = 1) +
+  # Plot baseline synthetic control as a dashed black line.
+  geom_line(data = df_baseline, aes(x = Year, y = Synthetic),
+            color = "black", size = 1, linetype = "dashed") +
+  # Overlay all leave-one-out synthetic control trajectories as gray lines.
+  geom_line(data = loo_long, aes(x = Year, y = Synthetic, group = LOO),
+            color = "grey", size = 0.8, alpha = 0.7) +
+  # Add a vertical line to mark the treatment year.
+  geom_vline(xintercept = treatment_year, linetype = "dashed", color = "red", linewidth = 0.7) +
+  labs(title = "Leave-One-Out Synthetic Control Estimates",
+       x = "Year",
+       y = "Fertility Rate (Births per Woman)") +
+  scale_y_continuous(limits = c(0, 5)) +
+  theme_minimal()
+
+print(p)
