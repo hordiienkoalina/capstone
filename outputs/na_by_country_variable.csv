@@ -1,0 +1,221 @@
+"Country Name","Variable","NA_Count","Total_Entries","NA_Proportion"
+"Serbia","Female_Male_Labor_Ratio",44,63,69.8412698412698
+"Georgia","Female_Male_Labor_Ratio",40,63,63.4920634920635
+"Moldova","Female_Male_Labor_Ratio",39,63,61.9047619047619
+"Moldova","Unemployment_Rate",39,63,61.9047619047619
+"Croatia","Female_Male_Labor_Ratio",38,63,60.3174603174603
+"Georgia","Unemployment_Rate",38,63,60.3174603174603
+"Latvia","Unemployment_Rate",38,63,60.3174603174603
+"Ukraine","Female_Male_Labor_Ratio",38,63,60.3174603174603
+"Latvia","Female_Male_Labor_Ratio",37,63,58.7301587301587
+"Bulgaria","Female_Male_Labor_Ratio",36,63,57.1428571428571
+"Serbia","GDP_Per_Capita_Growth",36,63,57.1428571428571
+"Ukraine","Unemployment_Rate",36,63,57.1428571428571
+"Croatia","Unemployment_Rate",35,63,55.5555555555556
+"North Macedonia","Female_Male_Labor_Ratio",35,63,55.5555555555556
+"Serbia","Unemployment_Rate",35,63,55.5555555555556
+"Azerbaijan","Female_Male_Labor_Ratio",34,63,53.968253968254
+"Slovak Republic","Unemployment_Rate",33,63,52.3809523809524
+"Albania","Female_Male_Labor_Ratio",32,63,50.7936507936508
+"Slovak Republic","Female_Male_Labor_Ratio",32,63,50.7936507936508
+"Slovenia","Female_Male_Labor_Ratio",32,63,50.7936507936508
+"Slovenia","Unemployment_Rate",32,63,50.7936507936508
+"Ukraine","Female_Labor_Force",32,63,50.7936507936508
+"Albania","Female_Labor_Force",31,63,49.2063492063492
+"Azerbaijan","Female_Labor_Force",31,63,49.2063492063492
+"Azerbaijan","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Azerbaijan","Unemployment_Rate",31,63,49.2063492063492
+"Belgium","Female_Labor_Force",31,63,49.2063492063492
+"Bulgaria","Female_Labor_Force",31,63,49.2063492063492
+"Croatia","Female_Labor_Force",31,63,49.2063492063492
+"Croatia","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Cyprus","Female_Labor_Force",31,63,49.2063492063492
+"Denmark","Female_Labor_Force",31,63,49.2063492063492
+"France","Female_Labor_Force",31,63,49.2063492063492
+"Georgia","Female_Labor_Force",31,63,49.2063492063492
+"Italy","Female_Labor_Force",31,63,49.2063492063492
+"Latvia","Female_Labor_Force",31,63,49.2063492063492
+"Latvia","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Malta","Female_Labor_Force",31,63,49.2063492063492
+"Moldova","Female_Labor_Force",31,63,49.2063492063492
+"Moldova","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Netherlands","Female_Labor_Force",31,63,49.2063492063492
+"North Macedonia","Female_Labor_Force",31,63,49.2063492063492
+"North Macedonia","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Portugal","Female_Labor_Force",31,63,49.2063492063492
+"Serbia","Female_Labor_Force",31,63,49.2063492063492
+"Slovak Republic","Female_Labor_Force",31,63,49.2063492063492
+"Slovak Republic","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Slovenia","Female_Labor_Force",31,63,49.2063492063492
+"Slovenia","GDP_Per_Capita_Growth",31,63,49.2063492063492
+"Switzerland","Female_Labor_Force",31,63,49.2063492063492
+"Turkiye","Female_Labor_Force",31,63,49.2063492063492
+"Bulgaria","Unemployment_Rate",30,63,47.6190476190476
+"Ukraine","GDP_Per_Capita_Growth",28,63,44.4444444444444
+"Cyprus","Female_Male_Labor_Ratio",27,63,42.8571428571429
+"Malta","Unemployment_Rate",24,63,38.0952380952381
+"Turkiye","Unemployment_Rate",24,63,38.0952380952381
+"Malta","Female_Male_Labor_Ratio",23,63,36.5079365079365
+"North Macedonia","Unemployment_Rate",22,63,34.9206349206349
+"Turkiye","Female_Male_Labor_Ratio",22,63,34.9206349206349
+"Albania","GDP_Per_Capita_Growth",21,63,33.3333333333333
+"Albania","Unemployment_Rate",21,63,33.3333333333333
+"Bulgaria","GDP_Per_Capita_Growth",21,63,33.3333333333333
+"Netherlands","Unemployment_Rate",21,63,33.3333333333333
+"Switzerland","Female_Male_Labor_Ratio",21,63,33.3333333333333
+"Portugal","Unemployment_Rate",19,63,30.1587301587302
+"Netherlands","Female_Male_Labor_Ratio",18,63,28.5714285714286
+"Belgium","Female_Male_Labor_Ratio",17,63,26.984126984127
+"Portugal","Female_Male_Labor_Ratio",17,63,26.984126984127
+"Cyprus","GDP_Per_Capita_Growth",16,63,25.3968253968254
+"France","Female_Male_Labor_Ratio",16,63,25.3968253968254
+"Cyprus","Unemployment_Rate",15,63,23.8095238095238
+"Italy","Female_Male_Labor_Ratio",15,63,23.8095238095238
+"Switzerland","Unemployment_Rate",15,63,23.8095238095238
+"Denmark","Female_Male_Labor_Ratio",14,63,22.2222222222222
+"Denmark","Unemployment_Rate",13,63,20.6349206349206
+"Belgium","Unemployment_Rate",11,63,17.4603174603175
+"Italy","Unemployment_Rate",11,63,17.4603174603175
+"Malta","GDP_Per_Capita_Growth",11,63,17.4603174603175
+"France","Unemployment_Rate",10,63,15.8730158730159
+"Georgia","GDP_Per_Capita_Growth",6,63,9.52380952380952
+"Albania","Urban_Population_Growth",1,63,1.58730158730159
+"Azerbaijan","Urban_Population_Growth",1,63,1.58730158730159
+"Belgium","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Belgium","Urban_Population_Growth",1,63,1.58730158730159
+"Bulgaria","Urban_Population_Growth",1,63,1.58730158730159
+"Croatia","Urban_Population_Growth",1,63,1.58730158730159
+"Cyprus","Urban_Population_Growth",1,63,1.58730158730159
+"Denmark","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Denmark","Urban_Population_Growth",1,63,1.58730158730159
+"France","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"France","Urban_Population_Growth",1,63,1.58730158730159
+"Georgia","Urban_Population_Growth",1,63,1.58730158730159
+"Italy","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Italy","Urban_Population_Growth",1,63,1.58730158730159
+"Latvia","Urban_Population_Growth",1,63,1.58730158730159
+"Malta","Urban_Population_Growth",1,63,1.58730158730159
+"Moldova","Urban_Population_Growth",1,63,1.58730158730159
+"Netherlands","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Netherlands","Urban_Population_Growth",1,63,1.58730158730159
+"North Macedonia","Urban_Population_Growth",1,63,1.58730158730159
+"Portugal","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Portugal","Urban_Population_Growth",1,63,1.58730158730159
+"Serbia","Urban_Population_Growth",1,63,1.58730158730159
+"Slovak Republic","Urban_Population_Growth",1,63,1.58730158730159
+"Slovenia","Urban_Population_Growth",1,63,1.58730158730159
+"Switzerland","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Switzerland","Urban_Population_Growth",1,63,1.58730158730159
+"Turkiye","GDP_Per_Capita_Growth",1,63,1.58730158730159
+"Turkiye","Urban_Population_Growth",1,63,1.58730158730159
+"Ukraine","Urban_Population_Growth",1,63,1.58730158730159
+"Albania","Age_Dependency_Ratio",0,63,0
+"Albania","Country_Code",0,63,0
+"Albania","Fertility_Rate",0,63,0
+"Albania","Net_Migration",0,63,0
+"Albania","Year",0,63,0
+"Azerbaijan","Age_Dependency_Ratio",0,63,0
+"Azerbaijan","Country_Code",0,63,0
+"Azerbaijan","Fertility_Rate",0,63,0
+"Azerbaijan","Net_Migration",0,63,0
+"Azerbaijan","Year",0,63,0
+"Belgium","Age_Dependency_Ratio",0,63,0
+"Belgium","Country_Code",0,63,0
+"Belgium","Fertility_Rate",0,63,0
+"Belgium","Net_Migration",0,63,0
+"Belgium","Year",0,63,0
+"Bulgaria","Age_Dependency_Ratio",0,63,0
+"Bulgaria","Country_Code",0,63,0
+"Bulgaria","Fertility_Rate",0,63,0
+"Bulgaria","Net_Migration",0,63,0
+"Bulgaria","Year",0,63,0
+"Croatia","Age_Dependency_Ratio",0,63,0
+"Croatia","Country_Code",0,63,0
+"Croatia","Fertility_Rate",0,63,0
+"Croatia","Net_Migration",0,63,0
+"Croatia","Year",0,63,0
+"Cyprus","Age_Dependency_Ratio",0,63,0
+"Cyprus","Country_Code",0,63,0
+"Cyprus","Fertility_Rate",0,63,0
+"Cyprus","Net_Migration",0,63,0
+"Cyprus","Year",0,63,0
+"Denmark","Age_Dependency_Ratio",0,63,0
+"Denmark","Country_Code",0,63,0
+"Denmark","Fertility_Rate",0,63,0
+"Denmark","Net_Migration",0,63,0
+"Denmark","Year",0,63,0
+"France","Age_Dependency_Ratio",0,63,0
+"France","Country_Code",0,63,0
+"France","Fertility_Rate",0,63,0
+"France","Net_Migration",0,63,0
+"France","Year",0,63,0
+"Georgia","Age_Dependency_Ratio",0,63,0
+"Georgia","Country_Code",0,63,0
+"Georgia","Fertility_Rate",0,63,0
+"Georgia","Net_Migration",0,63,0
+"Georgia","Year",0,63,0
+"Italy","Age_Dependency_Ratio",0,63,0
+"Italy","Country_Code",0,63,0
+"Italy","Fertility_Rate",0,63,0
+"Italy","Net_Migration",0,63,0
+"Italy","Year",0,63,0
+"Latvia","Age_Dependency_Ratio",0,63,0
+"Latvia","Country_Code",0,63,0
+"Latvia","Fertility_Rate",0,63,0
+"Latvia","Net_Migration",0,63,0
+"Latvia","Year",0,63,0
+"Malta","Age_Dependency_Ratio",0,63,0
+"Malta","Country_Code",0,63,0
+"Malta","Fertility_Rate",0,63,0
+"Malta","Net_Migration",0,63,0
+"Malta","Year",0,63,0
+"Moldova","Age_Dependency_Ratio",0,63,0
+"Moldova","Country_Code",0,63,0
+"Moldova","Fertility_Rate",0,63,0
+"Moldova","Net_Migration",0,63,0
+"Moldova","Year",0,63,0
+"Netherlands","Age_Dependency_Ratio",0,63,0
+"Netherlands","Country_Code",0,63,0
+"Netherlands","Fertility_Rate",0,63,0
+"Netherlands","Net_Migration",0,63,0
+"Netherlands","Year",0,63,0
+"North Macedonia","Age_Dependency_Ratio",0,63,0
+"North Macedonia","Country_Code",0,63,0
+"North Macedonia","Fertility_Rate",0,63,0
+"North Macedonia","Net_Migration",0,63,0
+"North Macedonia","Year",0,63,0
+"Portugal","Age_Dependency_Ratio",0,63,0
+"Portugal","Country_Code",0,63,0
+"Portugal","Fertility_Rate",0,63,0
+"Portugal","Net_Migration",0,63,0
+"Portugal","Year",0,63,0
+"Serbia","Age_Dependency_Ratio",0,63,0
+"Serbia","Country_Code",0,63,0
+"Serbia","Fertility_Rate",0,63,0
+"Serbia","Net_Migration",0,63,0
+"Serbia","Year",0,63,0
+"Slovak Republic","Age_Dependency_Ratio",0,63,0
+"Slovak Republic","Country_Code",0,63,0
+"Slovak Republic","Fertility_Rate",0,63,0
+"Slovak Republic","Net_Migration",0,63,0
+"Slovak Republic","Year",0,63,0
+"Slovenia","Age_Dependency_Ratio",0,63,0
+"Slovenia","Country_Code",0,63,0
+"Slovenia","Fertility_Rate",0,63,0
+"Slovenia","Net_Migration",0,63,0
+"Slovenia","Year",0,63,0
+"Switzerland","Age_Dependency_Ratio",0,63,0
+"Switzerland","Country_Code",0,63,0
+"Switzerland","Fertility_Rate",0,63,0
+"Switzerland","Net_Migration",0,63,0
+"Switzerland","Year",0,63,0
+"Turkiye","Age_Dependency_Ratio",0,63,0
+"Turkiye","Country_Code",0,63,0
+"Turkiye","Fertility_Rate",0,63,0
+"Turkiye","Net_Migration",0,63,0
+"Turkiye","Year",0,63,0
+"Ukraine","Age_Dependency_Ratio",0,63,0
+"Ukraine","Country_Code",0,63,0
+"Ukraine","Fertility_Rate",0,63,0
+"Ukraine","Net_Migration",0,63,0
+"Ukraine","Year",0,63,0
